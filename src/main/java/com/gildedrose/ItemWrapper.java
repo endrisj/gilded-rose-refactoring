@@ -1,5 +1,7 @@
 package com.gildedrose;
 
+import static java.lang.Integer.max;
+
 import java.util.function.BiFunction;
 
 class ItemWrapper {
@@ -17,7 +19,10 @@ class ItemWrapper {
             return 1;
         }),
         OTHER(1, (sellInDays, currentQuality) -> {
-            return 1;
+            if (sellInDays < 0) {
+                return max(0, currentQuality - 2);
+            }
+            return max(0, currentQuality - 1);
         });
 
         private final int decreaseSellInDaysBy;
@@ -59,31 +64,25 @@ class ItemWrapper {
     }
 
     private void updateQuality() {
-        if (ItemCategory.SULFURAS == category) {
+        if (ItemCategory.SULFURAS == category || ItemCategory.OTHER == category) {
             item.quality = category.calcNewQuality(item.sellIn, item.quality);
             return;
         }
 
 
-        if (!item.name.equals(AGED_BRIE) && !item.name.equals(BACKSTAGE_PASSES)) {
-            if (item.quality > 0) {
-                item.quality = item.quality - 1;
-            }
-        } else {
-            if (item.quality < 50) {
-                item.quality = item.quality + 1;
+        if (item.quality < 50) {
+            item.quality = item.quality + 1;
 
-                if (item.name.equals(BACKSTAGE_PASSES)) {
-                    if (item.sellIn < 10) {
-                        if (item.quality < 50) {
-                            item.quality = item.quality + 1;
-                        }
+            if (item.name.equals(BACKSTAGE_PASSES)) {
+                if (item.sellIn < 10) {
+                    if (item.quality < 50) {
+                        item.quality = item.quality + 1;
                     }
+                }
 
-                    if (item.sellIn < 5) {
-                        if (item.quality < 50) {
-                            item.quality = item.quality + 1;
-                        }
+                if (item.sellIn < 5) {
+                    if (item.quality < 50) {
+                        item.quality = item.quality + 1;
                     }
                 }
             }
@@ -91,13 +90,7 @@ class ItemWrapper {
 
         if (item.sellIn < 0) {
             if (!item.name.equals(AGED_BRIE)) {
-                if (!item.name.equals(BACKSTAGE_PASSES)) {
-                    if (item.quality > 0) {
-                        item.quality = item.quality - 1;
-                    }
-                } else {
-                    item.quality = 0;
-                }
+                item.quality = 0;
             } else {
                 if (item.quality < 50) {
                     item.quality = item.quality + 1;
