@@ -1,22 +1,32 @@
 package com.gildedrose;
 
 import static java.lang.Integer.max;
+import static java.lang.Integer.min;
 
 import java.util.function.BiFunction;
 
 class ItemWrapper {
 
-    private static final String AGED_BRIE = "Aged Brie";
-    private static final String BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert";
-
     // TODO aj: move to separate class
     private enum ItemCategory {
         SULFURAS(0, (sellInDays, currentQuality) -> currentQuality),
         AGED_BRIE(1, (sellInDays, currentQuality) -> {
-            return 1;
+            if (sellInDays < 0) {
+                return min(50, currentQuality + 2);
+            }
+            return min(50, currentQuality + 1);
         }),
         BACKSTAGE_PASSES(1, (sellInDays, currentQuality) -> {
-            return 1;
+            if (sellInDays < 0) {
+                return 0;
+            }
+            if (sellInDays < 5) {
+                return min(50, currentQuality + 3);
+            }
+            if (sellInDays < 10) {
+                return min(50, currentQuality + 2);
+            }
+            return min(50, currentQuality + 1);
         }),
         OTHER(1, (sellInDays, currentQuality) -> {
             if (sellInDays < 0) {
@@ -64,38 +74,6 @@ class ItemWrapper {
     }
 
     private void updateQuality() {
-        if (ItemCategory.SULFURAS == category || ItemCategory.OTHER == category) {
-            item.quality = category.calcNewQuality(item.sellIn, item.quality);
-            return;
-        }
-
-
-        if (item.quality < 50) {
-            item.quality = item.quality + 1;
-
-            if (item.name.equals(BACKSTAGE_PASSES)) {
-                if (item.sellIn < 10) {
-                    if (item.quality < 50) {
-                        item.quality = item.quality + 1;
-                    }
-                }
-
-                if (item.sellIn < 5) {
-                    if (item.quality < 50) {
-                        item.quality = item.quality + 1;
-                    }
-                }
-            }
-        }
-
-        if (item.sellIn < 0) {
-            if (!item.name.equals(AGED_BRIE)) {
-                item.quality = 0;
-            } else {
-                if (item.quality < 50) {
-                    item.quality = item.quality + 1;
-                }
-            }
-        }
+        item.quality = category.calcNewQuality(item.sellIn, item.quality);
     }
 }
