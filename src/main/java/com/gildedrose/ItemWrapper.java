@@ -6,16 +6,41 @@ class ItemWrapper {
     private static final String AGED_BRIE = "Aged Brie";
     private static final String BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert";
 
+    private enum ItemCategory {
+        SULFURAS(0),
+        AGED_BRIE(1),
+        BACKSTAGE_PASSES(1),
+        OTHER(1);
+
+        private final int decreaseSellInDaysBy;
+
+        ItemCategory(int decreaseSellInDaysBy) {
+            this.decreaseSellInDaysBy = decreaseSellInDaysBy;
+        }
+    }
+
     private final Item item;
+    private final ItemCategory category;
 
     ItemWrapper(Item item) {
         this.item = item;
+        switch (item.name) {
+            case "Sulfuras, Hand of Ragnaros":
+                category = ItemCategory.SULFURAS;
+                break;
+            case "Aged Brie":
+                category = ItemCategory.AGED_BRIE;
+                break;
+            case "Backstage passes to a TAFKAL80ETC concert":
+                category = ItemCategory.BACKSTAGE_PASSES;
+                break;
+            default:
+                category = ItemCategory.OTHER;
+        }
     }
 
     void decreaseSellInDays() {
-        if (!item.name.equals(SULFURAS)) {
-            item.sellIn = item.sellIn - 1;
-        }
+        item.sellIn -= category.decreaseSellInDaysBy;
         updateQuality();
     }
 
