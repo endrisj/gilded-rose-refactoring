@@ -1,25 +1,53 @@
 package com.gildedrose
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
-/**
- * Spock unit tests.
- */
 class GildedRoseSpec extends Specification {
 
-    def "should update quality correctly"() {
+    @Unroll
+    def 'updates `#name` sellIn from `#sellInDays` to `#sellInDaysExpected` after `#days` day(s)'() {
+        expect:
+            Item item = new Item(name, sellInDays, quality)
+            GildedRose gildedRose = new GildedRose(item)
+            days.times { gildedRose.updateQuality() }
+            item.sellIn == sellInDaysExpected
 
-        given: "some items"
-        Item[] items = [new Item("foo", 0, 0)];
+        where:
+            name                         | sellInDays | quality | days || sellInDaysExpected
+            "Aged Brie"                  | 2          | 2       | 1    || 1
+            "Aged Brie"                  | 2          | 2       | 9    || -7
+            "Aged Brie"                  | -2         | 2       | 4    || -6
+            "Sulfuras, Hand of Ragnaros" | 0          | 80      | 1    || 0
+            "Sulfuras, Hand of Ragnaros" | 5          | 80      | 10   || 5
+            "Sulfuras, Hand of Ragnaros" | -5         | 80      | 1    || -5
+    }
 
-        and: "the application with these items"
-        GildedRose app = new GildedRose(items);
+    @Unroll
+    def 'updates `#name` with sellIn `#sellInDays` quality from `#quality` to `#qualityExpected` after `#days` day(s). Verifying rule: `#rule`'() {
+        expect:
+            Item item = new Item(name, sellInDays, quality)
+            GildedRose gildedRose = new GildedRose(item)
+            days.times { gildedRose.updateQuality() }
+            item.quality == qualityExpected
 
-        when: "updating quality"
-        app.updateQuality();
+        where:
+            name                                        | sellInDays | quality | days | rule                                                                                                || qualityExpected
+            "+5 Dexterity Vest"                         | 10         | 20      | 1    | 'At the end of each day our system lowers both values for every item :: after 1 day'                || 19
+            "+5 Dexterity Vest"                         | 10         | 20      | 8    | 'At the end of each day our system lowers both values for every item :: after n days'               || 12
+            "+5 Dexterity Vest"                         | 0          | 10      | 1    | 'Once the sell by date has passed, Quality degrades twice as fast'                                  || 8
+            "+5 Dexterity Vest"                         | 5          | 0       | 10   | 'The Quality of an item is never negative'                                                          || 0
+            "Aged Brie"                                 | 2          | 0       | 1    | '"Aged Brie" actually increases in Quality the older it gets :: sellIn positive'                    || 1
+            "Aged Brie"                                 | 1          | 0       | 2    | '"Aged Brie" actually increases in Quality the older it gets :: sellIn negative'                    || 3
+            "Aged Brie"                                 | -5         | 40      | 15   | 'The Quality of an item is never more than 50'                                                      || 50
+            "Sulfuras, Hand of Ragnaros"                | 1          | 77      | 5    | '"Sulfuras", being a legendary item, never has to be sold or decreases in Quality'                  || 77
+            "Backstage passes to a TAFKAL80ETC concert" | 15         | 20      | 1    | '"Backstage passes", increases in Quality as its SellIn value approaches'                           || 21
+            "Backstage passes to a TAFKAL80ETC concert" | 11         | 20      | 3    | '"Backstage passes", increases in Quality as its SellIn value approaches :: Quality increases by 2' || 25
+            "Backstage passes to a TAFKAL80ETC concert" | 6          | 10      | 2    | '"Backstage passes", increases in Quality as its SellIn value approaches :: Quality increases by 3' || 15
+            "Backstage passes to a TAFKAL80ETC concert" | 3          | 40      | 4    | '"Backstage passes" Quality drops to 0 after the concert'                                           || 0
 
-        then: "the quality is correct"
-        app.items[0].name == "fixme"
+            // TODO aj: implement:
+//            "Conjured Mana Cake"
     }
 
 }
