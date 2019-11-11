@@ -1,21 +1,35 @@
 package com.gildedrose;
 
+import java.util.function.BiFunction;
+
 class ItemWrapper {
 
-    private static final String SULFURAS = "Sulfuras, Hand of Ragnaros";
     private static final String AGED_BRIE = "Aged Brie";
     private static final String BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert";
 
+    // TODO aj: move to separate class
     private enum ItemCategory {
-        SULFURAS(0),
-        AGED_BRIE(1),
-        BACKSTAGE_PASSES(1),
-        OTHER(1);
+        SULFURAS(0, (sellInDays, currentQuality) -> currentQuality),
+        AGED_BRIE(1, (sellInDays, currentQuality) -> {
+            return 1;
+        }),
+        BACKSTAGE_PASSES(1, (sellInDays, currentQuality) -> {
+            return 1;
+        }),
+        OTHER(1, (sellInDays, currentQuality) -> {
+            return 1;
+        });
 
         private final int decreaseSellInDaysBy;
+        private final BiFunction<Integer, Integer, Integer> qualityCalculator;
 
-        ItemCategory(int decreaseSellInDaysBy) {
+        ItemCategory(int decreaseSellInDaysBy, BiFunction<Integer, Integer, Integer> qualityCalculator) {
             this.decreaseSellInDaysBy = decreaseSellInDaysBy;
+            this.qualityCalculator = qualityCalculator;
+        }
+
+        int calcNewQuality(int sellInDays, int currentQuality) {
+            return qualityCalculator.apply(sellInDays, currentQuality);
         }
     }
 
@@ -45,11 +59,15 @@ class ItemWrapper {
     }
 
     private void updateQuality() {
+        if (ItemCategory.SULFURAS == category) {
+            item.quality = category.calcNewQuality(item.sellIn, item.quality);
+            return;
+        }
+
+
         if (!item.name.equals(AGED_BRIE) && !item.name.equals(BACKSTAGE_PASSES)) {
             if (item.quality > 0) {
-                if (!item.name.equals(SULFURAS)) {
-                    item.quality = item.quality - 1;
-                }
+                item.quality = item.quality - 1;
             }
         } else {
             if (item.quality < 50) {
@@ -75,9 +93,7 @@ class ItemWrapper {
             if (!item.name.equals(AGED_BRIE)) {
                 if (!item.name.equals(BACKSTAGE_PASSES)) {
                     if (item.quality > 0) {
-                        if (!item.name.equals(SULFURAS)) {
-                            item.quality = item.quality - 1;
-                        }
+                        item.quality = item.quality - 1;
                     }
                 } else {
                     item.quality = 0;
