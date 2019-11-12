@@ -10,8 +10,7 @@ class GildedRose {
     public void updateQuality() {
         for (Item item : items) {
             ItemCategory category = determineCategory(item.name);
-            item.sellIn -= category.decreaseSellInDaysBy;
-            item.quality = category.calcNewQuality(item.sellIn, item.quality);
+            category.oneDayPassed(item);
         }
     }
 
