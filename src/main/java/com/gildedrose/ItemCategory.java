@@ -53,6 +53,10 @@ enum ItemCategory {
             return decreaseQuality(currentQuality, 2);
         }
         return decreaseQuality(currentQuality, 1);
+    }),
+    CONJURED(1, (sellInDays, currentQuality) -> {
+        int oneTimeDegradedQuality = OTHER.qualityCalculator.apply(sellInDays, currentQuality);
+        return OTHER.qualityCalculator.apply(sellInDays, oneTimeDegradedQuality);
     });
 
     private static final int MAX_QUALITY = 50;
@@ -65,7 +69,22 @@ enum ItemCategory {
         this.qualityCalculator = qualityCalculator;
     }
 
-    void oneDayPassed(Item item) {
+    public static ItemCategory determineFrom(String name) {
+        switch (name) {
+            case "Sulfuras, Hand of Ragnaros":
+                return ItemCategory.SULFURAS;
+            case "Aged Brie":
+                return ItemCategory.AGED_BRIE;
+            case "Backstage passes to a TAFKAL80ETC concert":
+                return ItemCategory.BACKSTAGE_PASSES;
+            case "Conjured Mana Cake":
+                return CONJURED;
+            default:
+                return ItemCategory.OTHER;
+        }
+    }
+
+    public void oneDayPassed(Item item) {
         item.sellIn -= decreaseSellInDaysBy;
         item.quality = qualityCalculator.apply(item.sellIn, item.quality);
     }
