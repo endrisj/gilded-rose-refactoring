@@ -46,9 +46,9 @@ class GildedRoseSpec extends Specification {
             "Backstage passes to a TAFKAL80ETC concert" | 11         | 20      | 3    | '"Backstage passes", increases in Quality as its SellIn value approaches :: Quality increases by 2' || 25
             "Backstage passes to a TAFKAL80ETC concert" | 6          | 10      | 2    | '"Backstage passes", increases in Quality as its SellIn value approaches :: Quality increases by 3' || 15
             "Backstage passes to a TAFKAL80ETC concert" | 3          | 40      | 4    | '"Backstage passes" Quality drops to 0 after the concert'                                           || 0
-
-            // TODO aj: implement:
-//            "Conjured Mana Cake"
+            "Conjured Mana Cake"                        | 5          | 25      | 1    | '"Conjured" items degrade in Quality twice as fast as normal items :: after 1 day'                  || 23
+            "Conjured Mana Cake"                        | 5          | 25      | 4    | '"Conjured" items degrade in Quality twice as fast as normal items :: after n days'                 || 17
+            "Conjured Mana Cake"                        | 1          | 25      | 2    | '"Conjured" items degrade in Quality twice as fast as normal items :: after sell by date passed'    || 19
     }
 
 }
