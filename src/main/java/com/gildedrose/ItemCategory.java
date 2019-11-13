@@ -72,15 +72,15 @@ enum ItemCategory {
     public static ItemCategory determineFrom(String name) {
         switch (name) {
             case "Sulfuras, Hand of Ragnaros":
-                return ItemCategory.SULFURAS;
+                return SULFURAS;
             case "Aged Brie":
-                return ItemCategory.AGED_BRIE;
+                return AGED_BRIE;
             case "Backstage passes to a TAFKAL80ETC concert":
-                return ItemCategory.BACKSTAGE_PASSES;
+                return BACKSTAGE_PASSES;
             case "Conjured Mana Cake":
                 return CONJURED;
             default:
-                return ItemCategory.OTHER;
+                return OTHER;
         }
     }
 
